@@ -411,6 +411,16 @@ button:hover {
   transform: translateY(-1px);
 }
 
+.public-message {
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: rgba(47, 111, 237, 0.06);
+  border: 1px solid rgba(47, 111, 237, 0.12);
+  color: var(--text);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
 .empty-state {
   padding: 28px 16px;
   text-align: center;

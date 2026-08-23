@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Workout Admin</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      body {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+      .admin-card {
+        width: min(100%, 560px);
+        padding: 28px;
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid var(--line);
+        box-shadow: var(--shadow);
+      }
+
+      .admin-card h1 {
+        margin: 0 0 18px;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .message {
+        margin-top: 8px;
+        color: var(--muted);
+      }
+
+      .error {
+        color: #c53434;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="admin-card">
+      <h1>Workout admin</h1>
+
+      <div id="login-panel">
+        <form id="admin-login-form" class="log-form">
+          <label>
+            <span>Password</span>
+            <input id="admin-password" type="password" placeholder="Enter admin password" required />
+          </label>
+          <button class="primary-button" type="submit">Access editor</button>
+        </form>
+      </div>
+
+      <div id="editor-panel" class="hidden">
+        <form id="message-form" class="log-form">
+          <label>
+            <span>Message</span>
+            <textarea id="message-input" rows="6" placeholder="Write a note for the public dashboard..."></textarea>
+          </label>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <button class="primary-button" type="submit">Save message</button>
+            <button id="logout-btn" class="ghost-button" type="button">Log out</button>
+          </div>
+        </form>
+        <p class="message"><a href="/">Open public dashboard</a></p>
+      </div>
+
+      <p id="status-message" class="message"></p>
+    </div>
+
+    <script>
+      const ADMIN_PASSWORD = 'workout-admin-2026';
+      const MESSAGE_KEY = 'training-dashboard-message';
+
+      const loginPanel = document.getElementById('login-panel');
+      const editorPanel = document.getElementById('editor-panel');
+      const adminLoginForm = document.getElementById('admin-login-form');
+      const messageForm = document.getElementById('message-form');
+      const statusMessage = document.getElementById('status-message');
+      const passwordInput = document.getElementById('admin-password');
+      const messageInput = document.getElementById('message-input');
+
+      function setStatus(text, isError = false) {
+        statusMessage.textContent = text;
+        statusMessage.classList.toggle('error', isError);
+      }
+
+      function showEditor() {
+        loginPanel.classList.add('hidden');
+        editorPanel.classList.remove('hidden');
+        messageInput.value = localStorage.getItem(MESSAGE_KEY) || '';
+      }
+
+      function showLogin() {
+        editorPanel.classList.add('hidden');
+        loginPanel.classList.remove('hidden');
+        passwordInput.value = '';
+      }
+
+      function isLoggedIn() {
+        return sessionStorage.getItem('training-dashboard-admin') === 'true';
+      }
+
+      if (isLoggedIn()) {
+        showEditor();
+      }
+
+      adminLoginForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const value = passwordInput.value.trim();
+
+        if (value === ADMIN_PASSWORD) {
+          sessionStorage.setItem('training-dashboard-admin', 'true');
+          setStatus('Access granted.');
+          showEditor();
+        } else {
+          setStatus('Incorrect password.', true);
+        }
+      });
+
+      messageForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const content = messageInput.value.trim();
+        localStorage.setItem(MESSAGE_KEY, content || 'No update yet.');
+        setStatus('Message saved successfully.');
+      });
+
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        sessionStorage.removeItem('training-dashboard-admin');
+        setStatus('Signed out.');
+        showLogin();
+      });
+    </script>
+  </body>
+</html>

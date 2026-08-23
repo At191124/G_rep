@@ -2,57 +2,58 @@
 
 A private, responsive dashboard for tracking workout sessions, exercise details, weekly progress, and training history.
 
+This version is designed for GitHub Pages only. There is no local machine service, no backend, and no Node process required.
+
 ## Features
 
 - Clean dashboard layout with summary metrics
 - Workout type filters for strength, cardio, mobility, and HIIT
 - Expandable workout entries for quick review
-- Local data storage using browser `localStorage`
-- Minimal UI optimized for personal training journaling
-- Ready for GitHub Pages hosting
-
-## Run locally
-
-Open the project folder in a browser directly or serve it locally:
-
-```bash
-cd c:\workdir\G_rep
-python -m http.server 8000
-```
-
-Then visit:
-
-```text
-http://localhost:8000
-```
+- Message editor hidden behind a password-protected admin page
+- Data stored in the browser using `localStorage`
+- Static deployment only, so the app runs from GitHub without a machine staying on
 
 ## GitHub Pages deployment
 
-1. Create a new GitHub repository for this project.
-2. Push the contents of this folder to the repository.
-3. In GitHub, open the repository settings.
-4. Navigate to Pages.
-5. Set the source to the main branch and root folder (`/`).
-6. Save and wait for the site to publish.
+1. Push this project to a GitHub repository.
+2. Open the repository in GitHub.
+3. Go to Settings > Pages.
+4. Set the source to the main branch and the root folder (`/`).
+5. Save and wait for the site to publish.
 
-Your dashboard will then be available at a GitHub Pages URL such as:
+The site will be available at a GitHub Pages URL like:
 
 ```text
-https://<your-user-name>.github.io/<repository-name>/
+https://your-user-name.github.io/your-repo-name/
+```
+
+## Admin access
+
+The admin page is intentionally hidden from the public dashboard. It lives at:
+
+```text
+https://your-user-name.github.io/your-repo-name/admin.html
+```
+
+Use the password:
+
+```text
+workout-admin-2026
 ```
 
 ## Notes
 
-- The app stores training data in the browser for privacy and simplicity.
-- Data is not synced to a backend by default.
-- To keep it private, maintain this project in a separate repository from work or research material.
+- This is a static GitHub-only project, so there is no live backend or remote database.
+- The public dashboard and the admin page both rely on browser storage.
+- The admin page is not linked from the public screen to keep it less visible.
 
 ## Project structure
 
 ```text
 .
 ├── index.html
-├── styles.css
+├── admin.html
 ├── script.js
+├── styles.css
 ├── README.md
-```
+``` 

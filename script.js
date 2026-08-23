@@ -143,6 +143,15 @@ function render() {
   renderSummary();
   renderWeeklyChart();
   renderWorkouts();
+  renderPublicMessage();
+}
+
+function renderPublicMessage() {
+  const container = document.getElementById('public-message');
+  if (!container) return;
+
+  const message = localStorage.getItem('training-dashboard-message') || 'No update yet.';
+  container.textContent = message;
 }
 
 function renderSummary() {
