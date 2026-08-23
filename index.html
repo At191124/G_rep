@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Training Dashboard</title>
+    <meta
+      name="description"
+      content="Private workout and training dashboard for tracking sessions, exercise data, and progress."
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand" aria-label="Trainer dashboard brand">
+          <div class="brand-mark">A</div>
+          <div>
+            <strong>ActiveLedger</strong>
+            <span>Training dashboard</span>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <button class="pill-button" type="button">This week</button>
+        </div>
+      </header>
+
+      <main class="dashboard">
+        <section class="summary-grid" aria-label="Session summary cards">
+          <article class="metric-card">
+            <label>Total Sessions</label>
+            <strong id="total-sessions">0</strong>
+            <small>Across all logs</small>
+          </article>
+          <article class="metric-card accent">
+            <label>Total Volume</label>
+            <strong id="total-volume">0</strong>
+            <small>Estimated load</small>
+          </article>
+          <article class="metric-card">
+            <label>Average Duration</label>
+            <strong id="avg-duration">0m</strong>
+            <small>Per workout</small>
+          </article>
+          <article class="metric-card">
+            <label>Current Streak</label>
+            <strong id="streak-count">0</strong>
+            <small>Days active</small>
+          </article>
+        </section>
+
+        <section class="panel overview-panel" aria-label="Weekly training overview">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Overview</p>
+              <h2>Training trend</h2>
+            </div>
+            <div class="filters" id="type-filters" aria-label="Workout type filters">
+              <button class="filter-chip active" type="button" data-filter="all">All</button>
+              <button class="filter-chip" type="button" data-filter="strength">Strength</button>
+              <button class="filter-chip" type="button" data-filter="cardio">Cardio</button>
+              <button class="filter-chip" type="button" data-filter="mobility">Mobility</button>
+              <button class="filter-chip" type="button" data-filter="hiit">HIIT</button>
+            </div>
+          </div>
+          <div id="weekly-chart" class="weekly-chart" aria-label="Weekly workout volume chart"></div>
+        </section>
+
+        <section class="layout-grid">
+          <div class="panel log-panel" aria-label="Workout list">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Journal</p>
+                <h2>Workout log</h2>
+              </div>
+              <button id="reset-demo" class="ghost-button" type="button">Reset demo data</button>
+            </div>
+            <div id="workout-list" class="workout-list"></div>
+          </div>
+
+          <aside class="panel form-panel" aria-label="Add new workout form">
+            <div class="panel-header compact">
+              <div>
+                <p class="eyebrow">Quick entry</p>
+                <h2>Log a workout</h2>
+              </div>
+            </div>
+
+            <form id="log-form" class="log-form">
+              <div class="field-grid">
+                <label>
+                  <span>Date</span>
+                  <input id="workout-date" name="date" type="date" required />
+                </label>
+                <label>
+                  <span>Workout type</span>
+                  <select id="workout-type" name="type" required>
+                    <option value="strength">Strength</option>
+                    <option value="cardio">Cardio</option>
+                    <option value="mobility">Mobility</option>
+                    <option value="hiit">HIIT</option>
+                  </select>
+                </label>
+              </div>
+
+              <label>
+                <span>Workout name</span>
+                <input id="workout-name" name="name" type="text" placeholder="Upper Body Power" required />
+              </label>
+
+              <label>
+                <span>Duration (minutes)</span>
+                <input id="workout-duration" name="duration" type="number" min="10" max="240" value="60" required />
+              </label>
+
+              <label>
+                <span>Exercises</span>
+                <textarea
+                  id="workout-exercises"
+                  name="exercises"
+                  rows="5"
+                  placeholder="Bench Press | 5 x 5 @ 95 kg&#10;Pull-Ups | 4 x 8 @ bodyweight&#10;Incline Dumbbell Press | 3 x 10 @ 35 kg"
+                  required
+                ></textarea>
+              </label>
+
+              <label>
+                <span>Notes</span>
+                <textarea id="workout-notes" name="notes" rows="3" placeholder="Felt strong on the first two movements and kept rest times controlled."></textarea>
+              </label>
+
+              <button class="primary-button" type="submit">Save workout</button>
+            </form>
+          </aside>
+        </section>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
