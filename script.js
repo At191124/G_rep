@@ -2,60 +2,7 @@ const STORAGE_KEY = 'training-dashboard-workouts';
 const MESSAGE_KEY = 'training-dashboard-message';
 const SESSIONS_KEY = 'training-dashboard-sessions';
 
-const defaultWorkouts = [
-  {
-    id: 1,
-    date: '2026-08-21',
-    type: 'strength',
-    name: 'Upper Body Power',
-    duration: 72,
-    notes: 'Strong bench press work and slow eccentric pull-ups. Kept the rest intervals tight.',
-    exercises: [
-      { name: 'Bench Press', sets: 5, reps: 5, weight: 95 },
-      { name: 'Pull-Ups', sets: 4, reps: 8, weight: 0 },
-      { name: 'Dumbbell Rows', sets: 4, reps: 10, weight: 32 }
-    ]
-  },
-  {
-    id: 2,
-    date: '2026-08-18',
-    type: 'cardio',
-    name: 'Tempo Run',
-    duration: 48,
-    notes: 'Controlled effort. Breathing stayed steady after the first 15 minutes.',
-    exercises: [
-      { name: 'Treadmill Run', sets: 1, reps: 1, weight: 0 },
-      { name: 'Row Intervals', sets: 5, reps: 500, weight: 0 },
-      { name: 'Cool Down Walk', sets: 1, reps: 8, weight: 0 }
-    ]
-  },
-  {
-    id: 3,
-    date: '2026-08-16',
-    type: 'mobility',
-    name: 'Recovery Reset',
-    duration: 35,
-    notes: 'Focused on hips, thoracic rotation, and lower back mobility.',
-    exercises: [
-      { name: 'Hip Openers', sets: 2, reps: 10, weight: 0 },
-      { name: 'Thoracic Rotation', sets: 2, reps: 8, weight: 0 },
-      { name: 'Foam Rolling', sets: 1, reps: 15, weight: 0 }
-    ]
-  },
-  {
-    id: 4,
-    date: '2026-08-12',
-    type: 'hiit',
-    name: 'MetCon Circuit',
-    duration: 32,
-    notes: 'The burpees were the limiter. Kept transitions sharp between rounds.',
-    exercises: [
-      { name: 'Burpees', sets: 5, reps: 12, weight: 0 },
-      { name: 'Kettlebell Swings', sets: 4, reps: 15, weight: 24 },
-      { name: 'Mountain Climbers', sets: 4, reps: 20, weight: 0 }
-    ]
-  }
-];
+const defaultWorkouts = [];
 
 const state = {
   filter: 'all',
@@ -164,17 +111,16 @@ function readWorkouts() {
   const saved = localStorage.getItem(STORAGE_KEY);
 
   if (!saved) {
-    const fallback = structuredClone(defaultWorkouts);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(fallback));
-    return fallback;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultWorkouts));
+    return [];
   }
 
   try {
-    return JSON.parse(saved);
+    const parsed = JSON.parse(saved);
+    return Array.isArray(parsed) ? parsed : [];
   } catch (error) {
-    const fallback = structuredClone(defaultWorkouts);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(fallback));
-    return fallback;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultWorkouts));
+    return [];
   }
 }
 
