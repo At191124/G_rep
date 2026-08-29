@@ -59,6 +59,7 @@ const defaultWorkouts = [
 
 const state = {
   filter: 'all',
+  weekOnly: false,
   workouts: readWorkouts()
 };
 
@@ -72,6 +73,7 @@ const typeLabels = {
 const workoutList = document.getElementById('workout-list');
 const filterButtons = Array.from(document.querySelectorAll('.filter-chip'));
 const weeklyChart = document.getElementById('weekly-chart');
+const thisWeekButton = document.getElementById('this-week-button');
 
 const form = document.getElementById('log-form');
 
@@ -111,10 +113,28 @@ if (form) {
 filterButtons.forEach((button) => {
   button.addEventListener('click', () => {
     state.filter = button.dataset.filter;
+    state.weekOnly = false;
+    if (thisWeekButton) {
+      thisWeekButton.classList.remove('active');
+      thisWeekButton.setAttribute('aria-pressed', 'false');
+      thisWeekButton.textContent = 'This week';
+    }
     filterButtons.forEach((item) => item.classList.toggle('active', item === button));
     renderWorkouts();
   });
 });
+
+if (thisWeekButton) {
+  thisWeekButton.addEventListener('click', () => {
+    state.weekOnly = !state.weekOnly;
+    thisWeekButton.classList.toggle('active', state.weekOnly);
+    thisWeekButton.setAttribute('aria-pressed', String(state.weekOnly));
+    thisWeekButton.textContent = state.weekOnly ? 'All weeks' : 'This week';
+
+    filterButtons.forEach((button) => button.classList.toggle('active', !state.weekOnly && button.dataset.filter === state.filter));
+    renderWorkouts();
+  });
+}
 
 const resetDemoButton = document.getElementById('reset-demo');
 if (resetDemoButton) {
@@ -385,10 +405,33 @@ function renderWeeklyChart() {
     .join('');
 }
 
+function isWithinCurrentWeek(dateString) {
+  const iso = normalizeDateValue(dateString);
+  const current = new Date(`${iso}T00:00:00`);
+  const now = new Date();
+
+  const startOfWeek = new Date(now);
+  const dayOffset = (startOfWeek.getDay() + 6) % 7;
+  startOfWeek.setDate(now.getDate() - dayOffset);
+  startOfWeek.setHours(0, 0, 0, 0);
+
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 6);
+  endOfWeek.setHours(23, 59, 59, 999);
+
+  return current >= startOfWeek && current <= endOfWeek;
+}
+
 function renderWorkouts() {
-  const filteredWorkouts = state.filter === 'all'
-    ? state.workouts
-    : state.workouts.filter((workout) => workout.type === state.filter);
+  let filteredWorkouts = state.workouts;
+
+  if (state.weekOnly) {
+    filteredWorkouts = filteredWorkouts.filter((workout) => isWithinCurrentWeek(workout.date));
+  }
+
+  if (state.filter !== 'all') {
+    filteredWorkouts = filteredWorkouts.filter((workout) => workout.type === state.filter);
+  }
 
   if (!filteredWorkouts.length) {
     workoutList.innerHTML = '<div class="empty-state">No workouts saved for this filter yet.</div>';
