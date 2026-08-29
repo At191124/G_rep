@@ -10,7 +10,7 @@ This version is designed for GitHub Pages only. There is no local machine servic
 - Workout type filters for strength, cardio, mobility, and HIIT
 - Expandable workout entries for quick review
 - Message editor hidden behind a password-protected admin page
-- Data stored in the browser using `localStorage`
+- Public dashboard reads from a GitHub-hosted data file, so it does not rely on browser storage for live data
 - Static deployment only, so the app runs from GitHub without a machine staying on
 
 ## GitHub Pages deployment
@@ -44,7 +44,8 @@ workout-admin-2026
 ## Notes
 
 - This is a static GitHub-only project, so there is no live backend or remote database.
-- The public dashboard and the admin page both rely on browser storage.
+- The public dashboard reads the live workout data from the repository file at `data/workouts.json`.
+- The admin page can optionally sync that same file to GitHub by pasting a personal access token in the hidden editor.
 - The admin page is not linked from the public screen to keep it less visible.
 
 ## Project structure

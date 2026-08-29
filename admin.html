@@ -61,6 +61,10 @@
             <span>Workout entry</span>
             <textarea id="message-input" rows="12" placeholder="26.07.26&#10;Lat pulldowns: 105*7, 85*8, 65*9&#10;Triceps block pushdown with V hold: 50*4, 35*12, 25*9 (Mio repped to 14)&#10;Seated rows in machine: 120*5, 85*10, 65*13"></textarea>
           </label>
+          <label>
+            <span>GitHub token (optional, for repo sync)</span>
+            <input id="github-token" type="password" placeholder="Optional PAT for GitHub sync" />
+          </label>
           <div style="display:flex; gap:12px; flex-wrap:wrap;">
             <button class="primary-button" type="submit">Save message</button>
             <button id="logout-btn" class="ghost-button" type="button">Log out</button>
@@ -83,6 +87,7 @@
       const statusMessage = document.getElementById('status-message');
       const passwordInput = document.getElementById('admin-password');
       const messageInput = document.getElementById('message-input');
+      const githubTokenInput = document.getElementById('github-token');
 
       function setStatus(text, isError = false) {
         statusMessage.textContent = text;
@@ -185,6 +190,73 @@
         };
       }
 
+      function base64Encode(value) {
+        return btoa(unescape(encodeURIComponent(value)));
+      }
+
+      function readLocalWorkouts() {
+        const raw = localStorage.getItem('training-dashboard-workouts');
+        if (!raw) {
+          return [];
+        }
+
+        try {
+          const parsed = JSON.parse(raw);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+          return [];
+        }
+      }
+
+      async function syncToGithub(workouts, messageText) {
+        const token = githubTokenInput.value.trim();
+        if (!token) {
+          return false;
+        }
+
+        const repoOwner = 'At191124';
+        const repoName = 'G_rep';
+        const filePath = 'data/workouts.json';
+        const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
+
+        try {
+          const currentResponse = await fetch(url, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: 'application/vnd.github+json'
+            }
+          });
+
+          if (!currentResponse.ok) {
+            return false;
+          }
+
+          const currentFile = await currentResponse.json();
+          const payload = {
+            message: 'Update workout log from admin dashboard',
+            content: base64Encode(JSON.stringify({
+              message: messageText || 'No update yet.',
+              workouts
+            }, null, 2)),
+            sha: currentFile.sha
+          };
+
+          const uploadResponse = await fetch(url, {
+            method: 'PUT',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: 'application/vnd.github+json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+          });
+
+          return uploadResponse.ok;
+        } catch (error) {
+          return false;
+        }
+      }
+
       function saveSessionEntry(rawText) {
         const parsed = parseSessionEntry(rawText);
         if (!parsed) return false;
@@ -197,7 +269,7 @@
         return true;
       }
 
-      messageForm.addEventListener('submit', (event) => {
+      messageForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const content = messageInput.value.trim();
 
@@ -212,8 +284,12 @@
           return;
         }
 
+        const workouts = readLocalWorkouts();
+        const synced = await syncToGithub(workouts, content || 'No update yet.');
+
+        localStorage.setItem('training-dashboard-workouts', JSON.stringify(workouts));
         localStorage.setItem(MESSAGE_KEY, content || 'No update yet.');
-        setStatus('Message saved successfully.');
+        setStatus(synced ? 'Message saved successfully and synced to GitHub.' : 'Message saved locally. Add a GitHub PAT to sync the public repo.');
       });
 
       document.getElementById('logout-btn').addEventListener('click', () => {

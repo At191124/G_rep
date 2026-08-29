@@ -1,6 +1,7 @@
 const STORAGE_KEY = 'training-dashboard-workouts';
 const MESSAGE_KEY = 'training-dashboard-message';
 const SESSIONS_KEY = 'training-dashboard-sessions';
+const GITHUB_DATA_URL = 'https://raw.githubusercontent.com/At191124/G_rep/master/data/workouts.json';
 
 const defaultWorkouts = [];
 const legacyWorkoutNames = new Set([
@@ -49,7 +50,8 @@ clearLegacyDemoData();
 const state = {
   filter: 'all',
   weekOnly: false,
-  workouts: readWorkouts()
+  workouts: [],
+  message: 'No update yet.'
 };
 
 const typeLabels = {
@@ -134,7 +136,57 @@ if (resetDemoButton) {
   });
 }
 
-render();
+loadDashboardData().then(render);
+
+async function loadDashboardData() {
+  const repoData = await fetchRepoWorkouts();
+  if (repoData) {
+    state.workouts = repoData.workouts;
+    state.message = repoData.message;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(repoData.workouts));
+    localStorage.setItem(MESSAGE_KEY, repoData.message);
+    return;
+  }
+
+  state.workouts = readWorkouts();
+  state.message = localStorage.getItem(MESSAGE_KEY) || 'No update yet.';
+}
+
+async function fetchRepoWorkouts() {
+  try {
+    const response = await fetch(`${GITHUB_DATA_URL}?t=${Date.now()}`);
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    return normalizeRepoData(data);
+  } catch (error) {
+    return null;
+  }
+}
+
+function normalizeRepoData(data) {
+  if (Array.isArray(data)) {
+    return {
+      message: 'No update yet.',
+      workouts: data
+    };
+  }
+
+  if (data && typeof data === 'object') {
+    const workouts = Array.isArray(data.workouts) ? data.workouts : Array.isArray(data.sessions) ? data.sessions : [];
+    return {
+      message: typeof data.message === 'string' && data.message.trim() ? data.message : 'No update yet.',
+      workouts
+    };
+  }
+
+  return {
+    message: 'No update yet.',
+    workouts: []
+  };
+}
 
 function readWorkouts() {
   const savedSessions = localStorage.getItem(SESSIONS_KEY);
@@ -344,8 +396,7 @@ function renderPublicMessage() {
   const container = document.getElementById('public-message');
   if (!container) return;
 
-  const message = localStorage.getItem('training-dashboard-message') || 'No update yet.';
-  container.textContent = message;
+  container.textContent = state.message || 'No update yet.';
 }
 
 function renderSummary() {
