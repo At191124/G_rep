@@ -1,15 +1,15 @@
 :root {
-  --bg: #f3f6fb;
-  --panel: rgba(255, 255, 255, 0.9);
+  --bg: #edf3fb;
+  --panel: rgba(255, 255, 255, 0.8);
   --panel-strong: #ffffff;
-  --line: #dfe9f7;
-  --text: #18212f;
-  --muted: #5f6d80;
-  --primary: #2f6fed;
-  --primary-soft: rgba(47, 111, 237, 0.1);
-  --accent: #0cab8f;
+  --line: #dfe8f5;
+  --text: #1b2432;
+  --muted: #5e6d7f;
+  --primary: #3d87f7;
+  --primary-soft: rgba(61, 135, 247, 0.12);
+  --accent: #28b28d;
   --warning: #ff9a3d;
-  --shadow: 0 18px 45px rgba(18, 36, 60, 0.08);
+  --shadow: 0 12px 28px rgba(31, 53, 84, 0.09);
   --radius: 18px;
 }
 
@@ -43,9 +43,9 @@ button {
 }
 
 .app-shell {
-  max-width: 1280px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 24px 20px 48px;
+  padding: 18px 18px 40px;
 }
 
 .topbar {
@@ -53,7 +53,7 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 24px;
+  margin: 0 0 20px;
 }
 
 .brand {
@@ -63,26 +63,29 @@ button {
 }
 
 .brand-mark {
-  width: 42px;
-  height: 42px;
+  width: 34px;
+  height: 34px;
   display: grid;
   place-items: center;
-  border-radius: 14px;
-  background: linear-gradient(135deg, var(--primary), #7aa6ff);
+  border-radius: 10px;
+  background: linear-gradient(135deg, #4f8ef8, #76a9ff);
   color: white;
   font-weight: 700;
-  box-shadow: var(--shadow);
+  font-size: 1.05rem;
+  box-shadow: 0 8px 16px rgba(70, 130, 250, 0.2);
 }
 
 .brand strong {
   display: block;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
+  font-weight: 700;
 }
 
 .brand span {
   display: block;
   font-size: 0.8rem;
   color: var(--muted);
+  margin-top: 2px;
 }
 
 .pill-button,
@@ -103,8 +106,9 @@ button {
 }
 
 .pill-button {
-  padding: 10px 14px;
+  padding: 9px 14px;
   font-weight: 600;
+  box-shadow: 0 2px 8px rgba(16, 35, 62, 0.04);
 }
 
 .dashboard {
@@ -123,16 +127,15 @@ button {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 20px 18px;
-  background: var(--panel);
+  padding: 18px 18px 20px;
+  background: rgba(255, 255, 255, 0.7);
   border: 1px solid rgba(223, 233, 247, 0.9);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  box-shadow: 0 12px 18px rgba(46, 68, 94, 0.04);
 }
 
 .metric-card label {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--muted);
@@ -148,15 +151,15 @@ button {
 }
 
 .metric-card.accent {
-  background: linear-gradient(135deg, rgba(12, 171, 143, 0.12), rgba(47, 111, 237, 0.05));
+  background: linear-gradient(135deg, rgba(143, 195, 255, 0.18), rgba(118, 169, 255, 0.12));
 }
 
 .panel {
-  padding: 20px;
+  padding: 18px 20px 18px;
   border: 1px solid rgba(223, 233, 247, 0.9);
-  border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.8);
-  box-shadow: var(--shadow);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.74);
+  box-shadow: 0 8px 18px rgba(39, 55, 71, 0.04);
 }
 
 .panel-header {
@@ -173,16 +176,17 @@ button {
 
 .eyebrow {
   margin: 0 0 6px;
-  color: var(--primary);
+  color: #3d87f7;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   font-size: 0.72rem;
   font-weight: 700;
 }
 
 h2 {
   margin: 0;
-  font-size: clamp(1.2rem, 2vw, 1.7rem);
+  font-size: clamp(1.25rem, 2vw, 2rem);
+  font-weight: 800;
 }
 
 .filters {
@@ -192,14 +196,15 @@ h2 {
 }
 
 .filter-chip {
-  padding: 8px 12px;
+  padding: 7px 14px;
   font-weight: 600;
+  font-size: 0.95rem;
 }
 
 .filter-chip.active {
-  background: var(--primary-soft);
+  background: rgba(61, 135, 247, 0.12);
   color: var(--primary);
-  border-color: rgba(47, 111, 237, 0.3);
+  border-color: rgba(61, 135, 247, 0.3);
 }
 
 .weekly-chart {
@@ -247,7 +252,7 @@ h2 {
 .workout-entry {
   border: 1px solid var(--line);
   border-radius: 16px;
-  background: var(--panel-strong);
+  background: rgba(255, 255, 255, 0.85);
   overflow: hidden;
 }
 
@@ -285,10 +290,10 @@ h2 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 10px;
+  padding: 5px 10px;
   border-radius: 999px;
-  background: rgba(47, 111, 237, 0.08);
-  color: var(--primary);
+  background: rgba(64, 196, 168, 0.12);
+  color: #1aa57c;
   font-weight: 700;
   font-size: 0.74rem;
   text-transform: capitalize;
@@ -412,13 +417,14 @@ button:hover {
 }
 
 .public-message {
-  padding: 16px 18px;
+  padding: 18px 18px;
   border-radius: 14px;
-  background: rgba(47, 111, 237, 0.06);
-  border: 1px solid rgba(47, 111, 237, 0.12);
+  background: rgba(124, 178, 255, 0.12);
+  border: 1px solid rgba(62, 124, 227, 0.12);
   color: var(--text);
-  line-height: 1.6;
+  line-height: 1.65;
   white-space: pre-wrap;
+  font-size: 1.06rem;
 }
 
 .empty-state {
