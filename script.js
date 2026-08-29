@@ -3,6 +3,48 @@ const MESSAGE_KEY = 'training-dashboard-message';
 const SESSIONS_KEY = 'training-dashboard-sessions';
 
 const defaultWorkouts = [];
+const legacyWorkoutNames = new Set([
+  'Upper Body Power',
+  'Tempo Run',
+  'Recovery Reset',
+  'MetCon Circuit'
+]);
+
+function clearLegacyDemoData() {
+  const legacyMessagePatterns = [
+    'Lat pulldowns',
+    'Triceps block pushdown',
+    'Recovery week is on track',
+    '26.07.26'
+  ];
+
+  const rawMessage = localStorage.getItem(MESSAGE_KEY);
+  if (rawMessage && legacyMessagePatterns.some((pattern) => rawMessage.includes(pattern))) {
+    localStorage.removeItem(MESSAGE_KEY);
+  }
+
+  [STORAGE_KEY, SESSIONS_KEY].forEach((key) => {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) {
+        return;
+      }
+
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) {
+        return;
+      }
+
+      if (parsed.some((workout) => workout && typeof workout === 'object' && legacyWorkoutNames.has(workout.name))) {
+        localStorage.removeItem(key);
+      }
+    } catch (error) {
+      // ignore malformed cached data and keep the app resilient
+    }
+  });
+}
+
+clearLegacyDemoData();
 
 const state = {
   filter: 'all',
