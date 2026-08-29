@@ -1,4 +1,6 @@
 const STORAGE_KEY = 'training-dashboard-workouts';
+const MESSAGE_KEY = 'training-dashboard-message';
+const SESSIONS_KEY = 'training-dashboard-sessions';
 
 const defaultWorkouts = [
   {
@@ -126,23 +128,201 @@ if (resetDemoButton) {
 render();
 
 function readWorkouts() {
+  const savedSessions = localStorage.getItem(SESSIONS_KEY);
+
+  if (savedSessions) {
+    try {
+      const sessions = JSON.parse(savedSessions);
+      if (Array.isArray(sessions) && sessions.length) {
+        return sessions;
+      }
+    } catch (error) {
+      // ignore malformed data and fall through
+    }
+  }
+
   const saved = localStorage.getItem(STORAGE_KEY);
 
   if (!saved) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultWorkouts));
-    return structuredClone(defaultWorkouts);
+    const fallback = structuredClone(defaultWorkouts);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(fallback));
+    return fallback;
   }
 
   try {
     return JSON.parse(saved);
   } catch (error) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultWorkouts));
-    return structuredClone(defaultWorkouts);
+    const fallback = structuredClone(defaultWorkouts);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(fallback));
+    return fallback;
   }
 }
 
 function saveWorkouts() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state.workouts));
+}
+
+function saveSessionEntry(rawText) {
+  const parsed = parseSessionEntry(rawText);
+  if (!parsed) {
+    return false;
+  }
+
+  const current = safeReadSessions();
+  current.unshift(parsed);
+  localStorage.setItem(SESSIONS_KEY, JSON.stringify(current));
+  localStorage.setItem(MESSAGE_KEY, rawText);
+  state.workouts = current;
+  saveWorkouts();
+  return true;
+}
+
+function safeReadSessions() {
+  const raw = localStorage.getItem(SESSIONS_KEY);
+  if (!raw) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function parseSessionEntry(rawText) {
+  const text = String(rawText || '').trim();
+  if (!text) {
+    return null;
+  }
+
+  const lines = text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (!lines.length) {
+    return null;
+  }
+
+  const date = normalizeDateValue(extractDate(lines[0]) || new Date().toISOString().slice(0, 10));
+  const exerciseLines = lines.slice(1);
+  const exerciseData = [];
+
+  exerciseLines.forEach((line) => {
+    const match = line.match(/^(.+?):\s*(.+)$/);
+    if (!match) {
+      return;
+    }
+
+    const name = match[1].trim();
+    const valueText = match[2].trim();
+    const setEntries = valueText
+      .split(',')
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .map((part) => parseSetEntry(part))
+      .filter(Boolean);
+
+    if (!setEntries.length) {
+      return;
+    }
+
+    exerciseData.push({
+      name,
+      sets: setEntries,
+      notes: valueText.includes('(') ? valueText.match(/\((.*)\)/)?.[1] || '' : ''
+    });
+  });
+
+  if (!exerciseData.length) {
+    return null;
+  }
+
+  const totalVolume = exerciseData.reduce((sum, exercise) => sum + calculateExerciseVolume(exercise.sets), 0);
+
+  return {
+    id: Date.now(),
+    date,
+    type: 'strength',
+    name: `Workout ${date}`,
+    duration: Math.max(30, exerciseData.length * 15),
+    notes: text,
+    exercises: exerciseData,
+    totalVolume
+  };
+}
+
+function extractDate(text) {
+  const normalized = text.trim();
+
+  if (/^\d{2}\.\d{2}\.\d{2}$/.test(normalized)) {
+    return normalized;
+  }
+
+  const match = normalized.match(/(\d{4}-\d{2}-\d{2}|\d{2}\.\d{2}\.\d{2}|\d{1,2}\/\d{1,2}\/\d{2,4})/);
+  return match ? match[1] : null;
+}
+
+function normalizeDateValue(value) {
+  if (!value) {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  const text = String(value).trim();
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+    return text;
+  }
+
+  if (/^\d{2}\.\d{2}\.\d{2}$/.test(text)) {
+    const [day, month, yearShort] = text.split('.');
+    const fullYear = Number(yearShort) < 50 ? 2000 + Number(yearShort) : 1900 + Number(yearShort);
+    return new Date(Date.UTC(fullYear, Number(month) - 1, Number(day))).toISOString().slice(0, 10);
+  }
+
+  if (/^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(text)) {
+    const [first, second, third] = text.split('/');
+    const month = Number(first);
+    const day = Number(second);
+    const rawYear = Number(third);
+    const year = rawYear < 100 ? (rawYear < 50 ? 2000 + rawYear : 1900 + rawYear) : rawYear;
+    return new Date(Date.UTC(year, month - 1, day)).toISOString().slice(0, 10);
+  }
+
+  const parsed = new Date(text);
+  if (!Number.isNaN(parsed.getTime())) {
+    return parsed.toISOString().slice(0, 10);
+  }
+
+  return new Date().toISOString().slice(0, 10);
+}
+
+function parseSetEntry(part) {
+  const clean = part.replace(/\s+/g, ' ').trim();
+  const match = clean.match(/^(\d+(?:\.\d+)?)\s*\*\s*(\d+)/i);
+
+  if (!match) {
+    return null;
+  }
+
+  const weight = Number(match[1]);
+  const reps = Number(match[2]);
+
+  if (!Number.isFinite(weight) || !Number.isFinite(reps)) {
+    return null;
+  }
+
+  return { weight, reps };
+}
+
+function calculateExerciseVolume(sets) {
+  if (!Array.isArray(sets) || !sets.length) {
+    return 0;
+  }
+
+  return sets.reduce((sum, set) => sum + Number(set.weight || 0) * Number(set.reps || 0), 0);
 }
 
 function render() {
@@ -184,7 +364,8 @@ function renderWeeklyChart() {
   });
 
   state.workouts.forEach((workout) => {
-    const matchingDay = chartDays.find((day) => day.iso === workout.date);
+    const normalizedWorkoutDate = normalizeDateValue(workout.date);
+    const matchingDay = chartDays.find((day) => day.iso === normalizedWorkoutDate);
     if (matchingDay) {
       matchingDay.volume += calculateVolume(workout.exercises);
     }
@@ -230,17 +411,25 @@ function renderWorkouts() {
             <div class="entry-body">
               <ul>
                 ${workout.exercises
-                  .map(
-                    (exercise) => `
+                  .map((exercise) => {
+                    const setCount = Array.isArray(exercise.sets) ? exercise.sets.length : Number(exercise.sets) || 1;
+                    const repCount = Array.isArray(exercise.sets)
+                      ? exercise.sets.reduce((sum, setItem) => sum + Number(setItem.reps || 0), 0)
+                      : Number(exercise.reps) || 1;
+                    const weightValue = Array.isArray(exercise.sets)
+                      ? Math.max(...exercise.sets.map((setItem) => Number(setItem.weight || 0)))
+                      : Number(exercise.weight) || 0;
+
+                    return `
                       <li>
                         <div>
                           <div class="exercise-name">${escapeHtml(exercise.name)}</div>
-                          <div class="exercise-meta">${exercise.sets || 1} sets • ${exercise.reps || 1} reps</div>
+                          <div class="exercise-meta">${setCount} sets • ${repCount} reps</div>
                         </div>
-                        <strong>${exercise.weight ? `${exercise.weight} kg` : 'Bodyweight'}</strong>
+                        <strong>${weightValue ? `${weightValue} kg` : 'Bodyweight'}</strong>
                       </li>
-                    `
-                  )
+                    `;
+                  })
                   .join('') || '<li><span>No exercise details recorded.</span></li>'}
               </ul>
               <div class="entry-notes">${workout.notes ? escapeHtml(workout.notes) : 'No additional notes for this workout.'}</div>
@@ -314,6 +503,10 @@ function calculateVolume(exercises) {
       return sum;
     }
 
+    if (Array.isArray(exercise.sets)) {
+      return sum + calculateExerciseVolume(exercise.sets);
+    }
+
     const sets = Number(exercise.sets) || 1;
     const reps = Number(exercise.reps) || 1;
     const weight = Number(exercise.weight) || 0;
@@ -326,7 +519,7 @@ function formatVolume(value) {
 }
 
 function calculateStreak() {
-  const uniqueDates = [...new Set(state.workouts.map((workout) => workout.date))].sort((a, b) => new Date(b) - new Date(a));
+  const uniqueDates = [...new Set(state.workouts.map((workout) => normalizeDateValue(workout.date)))].sort((a, b) => new Date(b) - new Date(a));
   if (!uniqueDates.length) {
     return 0;
   }
@@ -349,7 +542,8 @@ function calculateStreak() {
 }
 
 function formatDate(dateString) {
-  return new Date(`${dateString}T00:00:00`).toLocaleDateString('en-US', {
+  const iso = normalizeDateValue(dateString);
+  return new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric'
