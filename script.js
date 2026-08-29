@@ -67,41 +67,44 @@ const typeLabels = {
   hiit: 'HIIT'
 };
 
-const form = document.getElementById('log-form');
 const workoutList = document.getElementById('workout-list');
 const filterButtons = Array.from(document.querySelectorAll('.filter-chip'));
 const weeklyChart = document.getElementById('weekly-chart');
 
-document.getElementById('workout-date').valueAsDate = new Date();
+const form = document.getElementById('log-form');
 
-form.addEventListener('submit', (event) => {
-  event.preventDefault();
-
-  const rawExercises = document.getElementById('workout-exercises').value
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean);
-
-  const exercises = rawExercises.map((line) => parseExercise(line));
-
-  const workout = {
-    id: Date.now(),
-    date: document.getElementById('workout-date').value,
-    type: document.getElementById('workout-type').value,
-    name: document.getElementById('workout-name').value.trim(),
-    duration: Number(document.getElementById('workout-duration').value) || 45,
-    notes: document.getElementById('workout-notes').value.trim(),
-    exercises: exercises.filter(Boolean)
-  };
-
-  state.workouts.unshift(workout);
-  saveWorkouts();
-  render();
-  form.reset();
+if (form) {
   document.getElementById('workout-date').valueAsDate = new Date();
-  document.getElementById('workout-type').value = 'strength';
-  document.getElementById('workout-duration').value = 60;
-});
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const rawExercises = document.getElementById('workout-exercises').value
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    const exercises = rawExercises.map((line) => parseExercise(line));
+
+    const workout = {
+      id: Date.now(),
+      date: document.getElementById('workout-date').value,
+      type: document.getElementById('workout-type').value,
+      name: document.getElementById('workout-name').value.trim(),
+      duration: Number(document.getElementById('workout-duration').value) || 45,
+      notes: document.getElementById('workout-notes').value.trim(),
+      exercises: exercises.filter(Boolean)
+    };
+
+    state.workouts.unshift(workout);
+    saveWorkouts();
+    render();
+    form.reset();
+    document.getElementById('workout-date').valueAsDate = new Date();
+    document.getElementById('workout-type').value = 'strength';
+    document.getElementById('workout-duration').value = 60;
+  });
+}
 
 filterButtons.forEach((button) => {
   button.addEventListener('click', () => {
@@ -111,11 +114,14 @@ filterButtons.forEach((button) => {
   });
 });
 
-document.getElementById('reset-demo').addEventListener('click', () => {
-  state.workouts = structuredClone(defaultWorkouts);
-  saveWorkouts();
-  render();
-});
+const resetDemoButton = document.getElementById('reset-demo');
+if (resetDemoButton) {
+  resetDemoButton.addEventListener('click', () => {
+    state.workouts = structuredClone(defaultWorkouts);
+    saveWorkouts();
+    render();
+  });
+}
 
 render();
 

@@ -76,72 +76,14 @@
           <div id="public-message" class="public-message">No update yet.</div>
         </section>
 
-        <section class="layout-grid">
-          <div class="panel log-panel" aria-label="Workout list">
-            <div class="panel-header">
-              <div>
-                <p class="eyebrow">Journal</p>
-                <h2>Workout log</h2>
-              </div>
-              <button id="reset-demo" class="ghost-button" type="button">Reset demo data</button>
+        <section class="panel log-panel" aria-label="Workout list">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Journal</p>
+              <h2>Workout log</h2>
             </div>
-            <div id="workout-list" class="workout-list"></div>
           </div>
-
-          <aside class="panel form-panel" aria-label="Add new workout form">
-            <div class="panel-header compact">
-              <div>
-                <p class="eyebrow">Quick entry</p>
-                <h2>Log a workout</h2>
-              </div>
-            </div>
-
-            <form id="log-form" class="log-form">
-              <div class="field-grid">
-                <label>
-                  <span>Date</span>
-                  <input id="workout-date" name="date" type="date" required />
-                </label>
-                <label>
-                  <span>Workout type</span>
-                  <select id="workout-type" name="type" required>
-                    <option value="strength">Strength</option>
-                    <option value="cardio">Cardio</option>
-                    <option value="mobility">Mobility</option>
-                    <option value="hiit">HIIT</option>
-                  </select>
-                </label>
-              </div>
-
-              <label>
-                <span>Workout name</span>
-                <input id="workout-name" name="name" type="text" placeholder="Upper Body Power" required />
-              </label>
-
-              <label>
-                <span>Duration (minutes)</span>
-                <input id="workout-duration" name="duration" type="number" min="10" max="240" value="60" required />
-              </label>
-
-              <label>
-                <span>Exercises</span>
-                <textarea
-                  id="workout-exercises"
-                  name="exercises"
-                  rows="5"
-                  placeholder="Bench Press | 5 x 5 @ 95 kg&#10;Pull-Ups | 4 x 8 @ bodyweight&#10;Incline Dumbbell Press | 3 x 10 @ 35 kg"
-                  required
-                ></textarea>
-              </label>
-
-              <label>
-                <span>Notes</span>
-                <textarea id="workout-notes" name="notes" rows="3" placeholder="Felt strong on the first two movements and kept rest times controlled."></textarea>
-              </label>
-
-              <button class="primary-button" type="submit">Save workout</button>
-            </form>
-          </aside>
+          <div id="workout-list" class="workout-list"></div>
         </section>
       </main>
     </div>
